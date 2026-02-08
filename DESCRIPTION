@@ -1,0 +1,32 @@
+Package: testreg
+Title: Bayesian Meta-Regression with Stan and NIMBLE Backends
+Version: 0.1.0
+Authors@R: person("JoonHo", "Lee", role = c("aut", "cre"),
+                   email = "joonho@example.com")
+Description: Fits random-effects Bayesian meta-regression models using either
+    Stan (via 'cmdstanr') or NIMBLE as the computational backend. Provides a
+    unified interface for model fitting, convergence diagnostics, posterior
+    summaries, posterior predictive checks, and visualization including forest
+    plots, caterpillar plots, and traceplots.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.0.0)
+Imports:
+    ggplot2,
+    posterior,
+    stats
+Suggests:
+    cmdstanr,
+    rstan,
+    nimble,
+    bayesplot,
+    coda,
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3

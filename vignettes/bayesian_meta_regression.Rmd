@@ -1,0 +1,141 @@
+---
+title: "Bayesian Meta-Regression with testreg"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Bayesian Meta-Regression with testreg}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Overview
+
+The **testreg** package fits Bayesian random-effects meta-regression models
+using either Stan (via `cmdstanr`) or NIMBLE as the computational backend.
+This vignette walks through the complete workflow: data exploration, model
+fitting, diagnostics, posterior predictive checks, and visualization.
+
+## 1. Load the Package and Example Data
+
+```{r load}
+library(testreg)
+data(example_meta)
+head(example_meta)
+str(example_meta)
+```
+
+The `example_meta` dataset contains 18 simulated studies with observed
+effect sizes (`yi`), sampling variances (`vi`), standard errors (`sei`),
+and two moderators: `dosage` and `duration`.
+
+## 2. Fit the Model with Stan
+
+```{r fit-stan}
+fit_stan <- meta_reg_stan(
+  yi   = "yi",
+  vi   = "vi",
+  mods = ~ dosage,
+  data = example_meta,
+  chains = 4,
+  iter   = 2000,
+  warmup = 1000
+)
+fit_stan
+```
+
+## 3. Fit the Model with NIMBLE
+
+```{r fit-nimble}
+fit_nimble <- meta_reg_nimble(
+  yi   = "yi",
+  vi   = "vi",
+  mods = ~ dosage,
+  data = example_meta,
+  chains = 4,
+  iter   = 2000,
+  warmup = 1000
+)
+fit_nimble
+```
+
+## 4. Compare Posterior Summaries
+
+```{r summaries}
+cat("=== Stan Backend ===\n")
+summary(fit_stan)
+
+cat("\n=== NIMBLE Backend ===\n")
+summary(fit_nimble)
+```
+
+Both backends should produce similar posterior summaries for `beta`
+(regression coefficients) and `tau` (between-study heterogeneity SD).
+Small differences are expected due to different MCMC algorithms.
+
+## 5. Convergence Diagnostics
+
+```{r diagnostics}
+diagnose(fit_stan)
+diagnose(fit_nimble)
+```
+
+Check that Rhat values are close to 1.0 (< 1.05) and that effective
+sample sizes (ESS) are adequate (> 400).
+
+## 6. Posterior Predictive Checks
+
+```{r ppc}
+pp_check(fit_stan, type = "density")
+pp_check(fit_stan, type = "scatter")
+pp_check(fit_stan, type = "stat")
+```
+
+The density overlay should show that replicated datasets (light blue)
+are consistent with the observed data (black line). The scatter plot
+compares observed values against posterior mean predictions.
+
+## 7. Visualization
+
+### Forest Plot
+
+```{r forest}
+plot(fit_stan, type = "forest")
+```
+
+### Caterpillar Plot
+
+```{r caterpillar}
+plot(fit_stan, type = "caterpillar")
+```
+
+### Trace Plots
+
+```{r trace}
+plot(fit_stan, type = "trace")
+```
+
+### Posterior Density Plots
+
+```{r density}
+plot(fit_stan, type = "density")
+```
+
+## 8. Interpretation
+
+The intercept (`beta[1]`) represents the expected effect size when all
+moderators are zero. The coefficient for `dosage` (`beta[2]`) captures
+the change in expected effect size per unit increase in dosage. The
+parameter `tau` quantifies the residual between-study heterogeneity
+after accounting for the moderator.
+
+If the 95% credible interval for `beta[2]` excludes zero, there is
+evidence that dosage moderates the effect. The magnitude of `tau`
+relative to the overall effect indicates how much unexplained
+heterogeneity remains.
