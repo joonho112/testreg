@@ -94,10 +94,10 @@ plot.metareg_fit <- function(x, type = "forest", pars = NULL, ...) {
   smry <- posterior::summarise_draws(
     sub_draws,
     mean   = mean,
-    q5     = ~stats::quantile(.x, 0.05),
-    q25    = ~stats::quantile(.x, 0.25),
-    q75    = ~stats::quantile(.x, 0.75),
-    q95    = ~stats::quantile(.x, 0.95)
+    q5     = function(x) unname(stats::quantile(x, 0.05)),
+    q25    = function(x) unname(stats::quantile(x, 0.25)),
+    q75    = function(x) unname(stats::quantile(x, 0.75)),
+    q95    = function(x) unname(stats::quantile(x, 0.95))
   )
 
   smry$variable <- factor(smry$variable, levels = rev(smry$variable))

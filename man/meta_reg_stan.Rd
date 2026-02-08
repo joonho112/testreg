@@ -13,8 +13,7 @@ meta_reg_stan(
   iter = 2000,
   warmup = 1000,
   seed = 12345,
-  backend = "cmdstanr",
-  ...
+  backend = "cmdstanr"
 )
 }
 \arguments{
@@ -38,8 +37,6 @@ or \code{NULL} for an intercept-only model.}
 \item{seed}{Random seed for reproducibility.}
 
 \item{backend}{Character: \code{"cmdstanr"} (default) or \code{"rstan"}.}
-
-\item{...}{Additional arguments passed to the sampling function.}
 }
 \value{
 An object of class \code{"metareg_fit"}.

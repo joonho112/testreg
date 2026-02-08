@@ -15,7 +15,6 @@
 #' @param warmup Number of warmup iterations per chain (default 1000).
 #' @param seed Random seed for reproducibility.
 #' @param backend Character: `"cmdstanr"` (default) or `"rstan"`.
-#' @param ... Additional arguments passed to the sampling function.
 #' @return An object of class `"metareg_fit"`.
 #' @export
 #' @examples
@@ -27,7 +26,7 @@
 #' }
 meta_reg_stan <- function(yi, vi, mods = NULL, data,
                           chains = 4, iter = 2000, warmup = 1000,
-                          seed = 12345, backend = "cmdstanr", ...) {
+                          seed = 12345, backend = "cmdstanr") {
 
   # Resolve yi and vi
   if (is.character(yi)) yi <- data[[yi]]
@@ -57,8 +56,7 @@ meta_reg_stan <- function(yi, vi, mods = NULL, data,
       iter_sampling = iter - warmup,
       iter_warmup = warmup,
       seed = seed,
-      refresh = 0,
-      ...
+      refresh = 0
     )
     draws <- posterior::as_draws_array(fit_raw$draws())
   } else if (backend == "rstan") {
@@ -72,8 +70,7 @@ meta_reg_stan <- function(yi, vi, mods = NULL, data,
       iter = iter,
       warmup = warmup,
       seed = seed,
-      refresh = 0,
-      ...
+      refresh = 0
     )
     draws <- posterior::as_draws_array(fit_raw)
   } else {

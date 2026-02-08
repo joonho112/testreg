@@ -39,21 +39,27 @@ summary.metareg_fit <- function(object, prob = 0.95, pars = NULL, ...) {
   }
 
   sub_draws <- posterior::subset_draws(draws, variable = keep)
-  smry <- posterior::summarise_draws(
-    sub_draws,
+
+  q_low_name <- paste0("q", 100 * (1 - prob) / 2)
+  q_high_name <- paste0("q", 100 * (1 - (1 - prob) / 2))
+
+  summary_fns <- list(
     mean   = mean,
     median = stats::median,
-    sd     = stats::sd,
-    ~stats::quantile(.x, probs = (1 - prob) / 2),
-    ~stats::quantile(.x, probs = 1 - (1 - prob) / 2),
-    posterior::default_convergence_measures()
+    sd     = stats::sd
   )
+  summary_fns[[q_low_name]] <- function(x) {
+    unname(stats::quantile(x, probs = (1 - prob) / 2))
+  }
+  summary_fns[[q_high_name]] <- function(x) {
+    unname(stats::quantile(x, probs = 1 - (1 - prob) / 2))
+  }
 
-  # Rename quantile columns
-  q_low <- paste0("q", 100 * (1 - prob) / 2)
-  q_high <- paste0("q", 100 * (1 - (1 - prob) / 2))
-  names(smry)[6] <- q_low
-  names(smry)[7] <- q_high
+  smry <- do.call(posterior::summarise_draws, c(
+    list(sub_draws),
+    summary_fns,
+    posterior::default_convergence_measures()
+  ))
 
   # Add readable coefficient names for beta
   K <- object$model_info$K
