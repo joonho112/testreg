@@ -18,7 +18,7 @@ Both backends return the same S3 object (`metareg_fit`), so you can switch betwe
 
 ```r
 # Install from GitHub
-devtools::install_github("joonho112/test_reg_R_package")
+devtools::install_github("joonho112/testreg")
 ```
 
 ### Backend setup
